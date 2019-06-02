@@ -11,7 +11,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # VAE parameters
 vae_model_file_name = 'vae.model'
-vae_z_size = 128
+vae_z_size = 64
 vae_memory_capacity = 100000
 vae_train_batch_size = 128
 

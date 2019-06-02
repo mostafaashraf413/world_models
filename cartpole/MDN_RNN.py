@@ -129,8 +129,8 @@ class MDRNN(_MDRNNBase):
         pi = gmm_outs[:, :, 2 * stride: 2 * stride + self.gaussians]
         pi = pi.view(seq_len, bs, self.gaussians)
         
-#        logpi = f.log_softmax(pi, dim=-1)
-        logpi = f.softmax(pi, dim=-1)
+        logpi = f.log_softmax(pi, dim=-1)
+#        logpi = f.softmax(pi, dim=-1)
         
         rs = gmm_outs[:, :, -2]
 
@@ -144,7 +144,8 @@ class MDN_RNN():
         self.mdrnn = MDRNN(constants.vae_z_size, action_size, constants.mdn_rnn_hidden_size, constants.n_gaussians)
         self.mdrnn.to(constants.device)
         self.memory = MDRNNReplayMemory()
-        self.optimizer = torch.optim.RMSprop(self.mdrnn.parameters(), lr=1e-3, alpha=.9)
+#        self.optimizer = torch.optim.RMSprop(self.mdrnn.parameters(), lr=1e-3, alpha=.9)
+        self.optimizer = torch.optim.Adam(self.mdrnn.parameters())
         self.action_size = action_size
         
         self.__episod_total_loss = 0
@@ -234,7 +235,9 @@ class MDN_RNN():
         batch = batch.unsqueeze(-2)
         normal_dist = Normal(mus[-1], sigmas[-1])
         g_log_probs = normal_dist.log_prob(batch)
+        g_log_probs = torch.exp(g_log_probs)
         g_log_probs = logpi[-1] + torch.sum(g_log_probs, dim=-1)
+        
 #        max_log_probs = torch.max(g_log_probs, dim=-1, keepdim=True)[0]
 #        g_log_probs = g_log_probs - max_log_probs
     
